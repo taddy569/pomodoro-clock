@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { MouseEvent, useState } from "react";
 
 import * as helper from "./helper";
+import Clock from "./Clock";
 
 const {
   AUDIO,
@@ -10,15 +11,8 @@ const {
   SOUND_SRC,
   TIME_LEFT_DEFAULT,
   timeFormat,
-  converTime,
+  convertTime,
 } = helper;
-
-type ResultType = {
-  breakLength: number;
-  breakTimeLeft: number;
-  sessionLength: number;
-  timeLeft: number;
-};
 
 let sessionTime: number = 0;
 let breakTime: number = 0;
@@ -34,6 +28,8 @@ const defaultValue = {
 };
 
 function App() {
+  const audio: HTMLElement | null = document.getElementById("beep");
+
   const [info, setInfo] = useState(defaultValue);
 
   const checkValue = (value: string) => {
@@ -93,7 +89,7 @@ function App() {
     });
   };
 
-  const handleControl = (e) => {
+  const handleControl = (e: MouseEvent<HTMLElement>) => {
     if (info.isCountDown) {
       let currentElementID = e.currentTarget.id;
       if (checkValue(currentElementID)) {
@@ -151,7 +147,7 @@ function App() {
     let isCD;
 
     if (!info.isCountDown) {
-      handleCountDown(AUDIO);
+      handleCountDown(audio);
       isCD = true;
     } else {
       window.clearInterval(countdown);
@@ -166,13 +162,30 @@ function App() {
   const handleReset = () => {
     window.clearInterval(countdown);
     setInfo(defaultValue);
-    if (!AUDIO.paused) {
+    if (audio && !audio.paused) {
       audio.pause();
       audio.currentTime = 0;
     }
   };
 
-  return <div>This is App</div>;
+  return (
+    <div id="container">
+      <a id="wikipedia" href={POMODORO_DEFINE} target="_blank" rel="noreferrer">
+        Pomodoro Clock
+      </a>
+      <Clock
+        breakLength={info.breakLength}
+        sessionLength={info.sessionLength}
+        handleControl={handleControl}
+        timeLeft={convertTime(info.timeLeft)}
+        breakTimeLeft={convertTime(info.breakTimeLeft)}
+        handlePlayPause={handlePlayPause}
+        handleReset={handleReset}
+        soundSrc={SOUND_SRC}
+        timeType={info.timeType}
+      />
+    </div>
+  );
 }
 
 export default App;

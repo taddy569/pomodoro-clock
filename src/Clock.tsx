@@ -8,7 +8,6 @@ type ClockType = {
   breakTimeLeft: string;
   breakLength: number;
   sessionLength: number;
-  soundSrc: string;
   handleControl: MouseEventHandler<HTMLDivElement>;
   handlePlayPause: MouseEventHandler<HTMLDivElement> | undefined;
   handleReset: MouseEventHandler<HTMLDivElement> | undefined;
@@ -51,7 +50,6 @@ function Clock(props: ClockType) {
       <div id="reset" onClick={props.handleReset}>
         <i className="fa fa-refresh"></i>
       </div>
-      <audio id="beep" src={props.soundSrc} />
     </div>
   );
 }

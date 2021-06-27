@@ -1,4 +1,4 @@
-import React, { MouseEvent, useState } from "react";
+import React, { MouseEvent, useState, useRef, RefObject } from "react";
 
 import * as helper from "./helper";
 import Clock from "./Clock";
@@ -16,7 +16,7 @@ const {
 
 let sessionTime: number = 0;
 let breakTime: number = 0;
-let countdown: number | string | boolean = "";
+let countdown: number = 0;
 
 const defaultValue = {
   breakLength: 5,
@@ -28,9 +28,8 @@ const defaultValue = {
 };
 
 function App() {
-  const audio: HTMLElement | null = document.getElementById("beep");
-
   const [info, setInfo] = useState(defaultValue);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   const checkValue = (value: string) => {
     let result: boolean = false;
@@ -98,14 +97,16 @@ function App() {
     }
   };
 
-  const handleCountDown = (audio) => {
+  const handleCountDown = (audio: RefObject<HTMLAudioElement>) => {
     countdown = window.setInterval(() => {
       switch (info.timeType) {
         case "Session":
           if (info.timeLeft === 0) {
             window.clearInterval(countdown);
-            audio.play();
-            audio.currentTime = 0;
+            if (audioRef.current) {
+              audioRef.current.play();
+              audioRef.current.currentTime = 0;
+            }
             setInfo({
               ...info,
               timeLeft: sessionTime,
@@ -122,8 +123,10 @@ function App() {
         case "Break":
           if (info.breakTimeLeft === 0) {
             window.clearInterval(countdown);
-            audio.play();
-            audio.currentTime = 0;
+            if (audioRef.current) {
+              audioRef.current.play();
+              audioRef.current.currentTime = 0;
+            }
             setInfo({
               ...info,
               breakTimeLeft: breakTime,
@@ -147,7 +150,7 @@ function App() {
     let isCD;
 
     if (!info.isCountDown) {
-      handleCountDown(audio);
+      handleCountDown(audioRef);
       isCD = true;
     } else {
       window.clearInterval(countdown);
@@ -162,9 +165,9 @@ function App() {
   const handleReset = () => {
     window.clearInterval(countdown);
     setInfo(defaultValue);
-    if (audio && !audio.paused) {
-      audio.pause();
-      audio.currentTime = 0;
+    if (audioRef.current && !audioRef.current.paused) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
     }
   };
 
@@ -181,9 +184,9 @@ function App() {
         breakTimeLeft={convertTime(info.breakTimeLeft)}
         handlePlayPause={handlePlayPause}
         handleReset={handleReset}
-        soundSrc={SOUND_SRC}
         timeType={info.timeType}
       />
+      <audio ref={audioRef} src={SOUND_SRC} />
     </div>
   );
 }

@@ -1,11 +1,18 @@
-import React from "react";
+import React, { ChangeEventHandler } from "react";
 
 type ClockSessionType = {
   sessionLength: number;
+  handleChange: ChangeEventHandler<HTMLInputElement>;
 };
 
 function ClockSession(props: ClockSessionType) {
-  return <div id="session-length">{props.sessionLength}</div>;
+  return (
+    <input
+      id="session-length"
+      value={props.sessionLength}
+      onChange={props.handleChange}
+    />
+  );
 }
 
 export default ClockSession;

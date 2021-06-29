@@ -55,6 +55,7 @@ code {
   display: grid;
   grid-template-rows: repeat(10, 10%);
   grid-template-columns: 50% 50%;
+  margin-bottom: 25px;
 }
 
 #clock > div {
@@ -104,7 +105,7 @@ code {
 #start_stop:hover,
 #reset:hover {
   color: #76bc92;
-  transform: scale(1.5);
+  /* transform: scale(1.5); */
 }
 
 #footer {

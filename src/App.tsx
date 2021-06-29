@@ -1,16 +1,13 @@
-import React, { MouseEvent, useState, useRef, RefObject } from "react";
+import React, { MouseEvent, useState, useEffect, useRef } from "react";
 
 import * as helper from "./helper";
 import Clock from "./Clock";
 
 const {
-  AUDIO,
-  AUTHOR,
   BREAK_TIME_LEFT_DEFAULT,
   POMODORO_DEFINE,
   SOUND_SRC,
   TIME_LEFT_DEFAULT,
-  timeFormat,
   convertTime,
 } = helper;
 
@@ -19,11 +16,11 @@ let breakTime: number = 0;
 let countdown: number = 0;
 
 const defaultValue = {
-  breakLength: 5,
   sessionLength: 25,
-  timeType: "Session",
   timeLeft: TIME_LEFT_DEFAULT,
+  breakLength: 5,
   breakTimeLeft: BREAK_TIME_LEFT_DEFAULT,
+  timeType: "Session",
   isCountDown: false,
 };
 
@@ -31,73 +28,11 @@ function App() {
   const [info, setInfo] = useState(defaultValue);
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  const checkValue = (value: string) => {
-    let result: boolean = false;
-    switch (value) {
-      case "break-decrement":
-        result = info.breakLength > 1 && info.breakLength <= 60;
-        break;
-      case "break-increment":
-        result = info.breakLength >= 1 && info.breakLength < 60;
-        break;
-      case "session-decrement":
-        result = info.sessionLength > 1 && info.sessionLength <= 60;
-        break;
-      case "session-increment":
-        result = info.sessionLength >= 1 && info.sessionLength < 60;
-        break;
-      default:
-        result = false;
-        break;
-    }
-    return result;
-  };
-
-  const changeLength = (type: string) => {
-    let result = {};
-
-    if (type === "break-decrement") {
-      breakTime = info.breakTimeLeft - 60000;
-      result = {
-        breakLength: info.breakLength - 1,
-        breakTimeLeft: breakTime,
-      };
-    } else if (type === "session-decrement") {
-      sessionTime = info.timeLeft - 60000;
-      result = {
-        sessionLength: info.sessionLength - 1,
-        timeLeft: sessionTime,
-      };
-    } else if (type === "break-increment") {
-      breakTime = info.breakTimeLeft + 60000;
-      result = {
-        breakLength: info.breakLength + 1,
-        breakTimeLeft: breakTime,
-      };
-    } else if (type === "session-increment") {
-      sessionTime = info.timeLeft + 60000;
-      result = {
-        sessionLength: info.sessionLength + 1,
-        timeLeft: sessionTime,
-      };
+  useEffect(() => {
+    if (!info.isCountDown) {
+      return;
     }
 
-    setInfo({
-      ...info,
-      ...result,
-    });
-  };
-
-  const handleControl = (e: MouseEvent<HTMLElement>) => {
-    if (info.isCountDown) {
-      let currentElementID = e.currentTarget.id;
-      if (checkValue(currentElementID)) {
-        changeLength(currentElementID);
-      }
-    }
-  };
-
-  const handleCountDown = (audio: RefObject<HTMLAudioElement>) => {
     countdown = window.setInterval(() => {
       switch (info.timeType) {
         case "Session":
@@ -112,7 +47,6 @@ function App() {
               timeLeft: sessionTime,
               timeType: "Break",
             });
-            handleCountDown(audio);
           } else {
             setInfo({
               ...info,
@@ -132,7 +66,6 @@ function App() {
               breakTimeLeft: breakTime,
               timeType: "Session",
             });
-            handleCountDown(audio);
           } else {
             setInfo({
               ...info,
@@ -144,16 +77,83 @@ function App() {
           break;
       }
     }, 1000);
+    return () => clearInterval(countdown);
+  }, [info]);
+
+  const checkValue = (value: string) => {
+    let result: boolean = false;
+    switch (value) {
+      case "break-decrement":
+        result = info.breakLength > 1 && info.breakLength <= 60;
+        break;
+      case "break-increment":
+        result = info.breakLength >= 1 && info.breakLength < 60;
+        break;
+      case "session-decrement":
+        result = info.sessionLength > 1 && info.sessionLength <= 60;
+        break;
+      case "session-increment":
+        result = info.sessionLength >= 1 && info.sessionLength < 60;
+        break;
+      default:
+        break;
+    }
+    return result;
+  };
+
+  const changeLength = (type: string) => {
+    let result = {};
+
+    switch (type) {
+      case "break-decrement":
+        result = {
+          breakLength: info.breakLength - 1,
+          breakTimeLeft: info.breakTimeLeft - 60000,
+        };
+        break;
+      case "session-decrement":
+        result = {
+          sessionLength: info.sessionLength - 1,
+          timeLeft: info.timeLeft - 60000,
+        };
+        break;
+      case "break-increment":
+        result = {
+          breakLength: info.breakLength + 1,
+          breakTimeLeft: info.breakTimeLeft + 60000,
+        };
+        break;
+      case "session-increment":
+        result = {
+          sessionLength: info.sessionLength + 1,
+          timeLeft: info.timeLeft + 60000,
+        };
+        break;
+      default:
+        break;
+    }
+
+    setInfo({
+      ...info,
+      ...result,
+    });
+  };
+
+  const handleControl = (e: MouseEvent<HTMLElement>) => {
+    if (!info.isCountDown) {
+      let currentElementID = e.currentTarget.id;
+      if (checkValue(currentElementID)) {
+        changeLength(currentElementID);
+      }
+    }
   };
 
   const handlePlayPause = () => {
     let isCD;
 
     if (!info.isCountDown) {
-      handleCountDown(audioRef);
       isCD = true;
     } else {
-      window.clearInterval(countdown);
       isCD = false;
     }
     setInfo({

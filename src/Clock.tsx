@@ -1,4 +1,4 @@
-import React, { MouseEventHandler } from "react";
+import React, { ChangeEventHandler, MouseEventHandler } from "react";
 import ClockBreak from "./ClockBreak";
 import ClockSession from "./ClockSession";
 
@@ -11,6 +11,7 @@ type ClockType = {
   handleControl: MouseEventHandler<HTMLDivElement>;
   handlePlayPause: MouseEventHandler<HTMLDivElement> | undefined;
   handleReset: MouseEventHandler<HTMLDivElement> | undefined;
+  handleChangeTime: ChangeEventHandler<HTMLInputElement>;
 };
 
 function Clock(props: ClockType) {
@@ -22,7 +23,10 @@ function Clock(props: ClockType) {
         <div id="break-decrement" onClick={props.handleControl}>
           <i className="fa fa-arrow-left"></i>
         </div>
-        <ClockBreak breakLength={props.breakLength} />
+        <ClockBreak
+          breakLength={props.breakLength}
+          handleChange={props.handleChangeTime}
+        />
         <div id="break-increment" onClick={props.handleControl}>
           <i className="fa fa-arrow-right"></i>
         </div>
@@ -31,7 +35,10 @@ function Clock(props: ClockType) {
         <div id="session-decrement" onClick={props.handleControl}>
           <i className="fa fa-arrow-left"></i>
         </div>
-        <ClockSession sessionLength={props.sessionLength} />
+        <ClockSession
+          sessionLength={props.sessionLength}
+          handleChange={props.handleChangeTime}
+        />
         <div id="session-increment" onClick={props.handleControl}>
           <i className="fa fa-arrow-right"></i>
         </div>

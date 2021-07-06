@@ -1,11 +1,18 @@
-import React from "react";
+import React, { ChangeEventHandler } from "react";
 
 type ClockBreakType = {
   breakLength: number;
+  handleChange: ChangeEventHandler<HTMLInputElement>;
 };
 
 const ClockBreak = (props: ClockBreakType) => {
-  return <div id="break-length">{props.breakLength}</div>;
+  return (
+    <input
+      id="break-length"
+      value={props.breakLength}
+      onChange={props.handleChange}
+    />
+  );
 };
 
 export default ClockBreak;

@@ -1,4 +1,10 @@
-import React, { MouseEvent, useState, useEffect, useRef } from "react";
+import React, {
+  MouseEvent,
+  useState,
+  useEffect,
+  useRef,
+  ChangeEvent,
+} from "react";
 
 import * as helper from "./helper";
 import Clock from "./Clock";
@@ -27,6 +33,9 @@ const defaultValue = {
 function App() {
   const [info, setInfo] = useState(defaultValue);
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  sessionTime = info.timeLeft;
+  breakTime = info.breakTimeLeft;
 
   useEffect(() => {
     if (!info.isCountDown) {
@@ -80,8 +89,8 @@ function App() {
     return () => clearInterval(countdown);
   }, [info]);
 
-  const checkValue = (value: string) => {
-    let result: boolean = false;
+  const checkValue = (value: string): boolean => {
+    let result = false;
     switch (value) {
       case "break-decrement":
         result = info.breakLength > 1 && info.breakLength <= 60;
@@ -101,7 +110,7 @@ function App() {
     return result;
   };
 
-  const changeLength = (type: string) => {
+  const changeLength = (type: string): void => {
     let result = {};
 
     switch (type) {
@@ -139,7 +148,7 @@ function App() {
     });
   };
 
-  const handleControl = (e: MouseEvent<HTMLElement>) => {
+  const handleControl = (e: MouseEvent<HTMLElement>): void => {
     if (!info.isCountDown) {
       let currentElementID = e.currentTarget.id;
       if (checkValue(currentElementID)) {
@@ -148,7 +157,7 @@ function App() {
     }
   };
 
-  const handlePlayPause = () => {
+  const handlePlayPause = (): void => {
     let isCD;
 
     if (!info.isCountDown) {
@@ -162,13 +171,39 @@ function App() {
     });
   };
 
-  const handleReset = () => {
+  const handleReset = (): void => {
     window.clearInterval(countdown);
     setInfo(defaultValue);
     if (audioRef.current && !audioRef.current.paused) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
     }
+  };
+
+  const handleChangeTime = (e: ChangeEvent<HTMLInputElement>): void => {
+    if (info.isCountDown) return;
+
+    const { id, value } = e.target;
+    const valueInNumber = Number(value);
+
+    if (valueInNumber < 1 || valueInNumber > 60 || !valueInNumber) return;
+
+    let customLengthKey = "";
+    let customTimeLeftKey = "";
+
+    if (id === "session-length") {
+      customLengthKey = "sessionLength";
+      customTimeLeftKey = "timeLeft";
+    } else if (id === "break-length") {
+      customLengthKey = "breakLength";
+      customTimeLeftKey = "breakTimeLeft";
+    }
+
+    setInfo({
+      ...info,
+      [customLengthKey]: value,
+      [customTimeLeftKey]: valueInNumber * 60 * 1000,
+    });
   };
 
   return (
@@ -182,9 +217,10 @@ function App() {
         handleControl={handleControl}
         timeLeft={convertTime(info.timeLeft)}
         breakTimeLeft={convertTime(info.breakTimeLeft)}
+        timeType={info.timeType}
         handlePlayPause={handlePlayPause}
         handleReset={handleReset}
-        timeType={info.timeType}
+        handleChangeTime={handleChangeTime}
       />
       <audio ref={audioRef} src={SOUND_SRC} />
     </div>

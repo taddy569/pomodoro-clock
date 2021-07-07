@@ -15,11 +15,10 @@ const {
   SOUND_SRC,
   TIME_LEFT_DEFAULT,
   convertTime,
+  convertTimeToMilliseconds,
 } = helper;
 
-let sessionTime: number = 0;
-let breakTime: number = 0;
-let countdown: number = 0;
+let countdown = 0;
 
 const defaultValue = {
   sessionLength: 25,
@@ -33,9 +32,6 @@ const defaultValue = {
 function App() {
   const [info, setInfo] = useState(defaultValue);
   const audioRef = useRef<HTMLAudioElement>(null);
-
-  sessionTime = info.timeLeft;
-  breakTime = info.breakTimeLeft;
 
   useEffect(() => {
     if (!info.isCountDown) {
@@ -53,7 +49,7 @@ function App() {
             }
             setInfo({
               ...info,
-              timeLeft: sessionTime,
+              timeLeft: convertTimeToMilliseconds(info.sessionLength),
               timeType: "Break",
             });
           } else {
@@ -72,7 +68,7 @@ function App() {
             }
             setInfo({
               ...info,
-              breakTimeLeft: breakTime,
+              breakTimeLeft: convertTimeToMilliseconds(info.breakLength),
               timeType: "Session",
             });
           } else {
@@ -91,6 +87,7 @@ function App() {
 
   const checkValue = (value: string): boolean => {
     let result = false;
+
     switch (value) {
       case "break-decrement":
         result = info.breakLength > 1 && info.breakLength <= 60;
@@ -174,6 +171,7 @@ function App() {
   const handleReset = (): void => {
     window.clearInterval(countdown);
     setInfo(defaultValue);
+
     if (audioRef.current && !audioRef.current.paused) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
@@ -202,7 +200,7 @@ function App() {
     setInfo({
       ...info,
       [customLengthKey]: value,
-      [customTimeLeftKey]: valueInNumber * 60 * 1000,
+      [customTimeLeftKey]: convertTimeToMilliseconds(valueInNumber),
     });
   };
 

@@ -1,11 +1,13 @@
+export const convertTimeToMilliseconds = (minute: number) => minute * 60 * 1000;
+
 export const AUDIO = "nothing";
 export const AUTHOR = "https://github.com/taddy569";
-export const BREAK_TIME_LEFT_DEFAULT = 5 * 60 * 1000;
+export const BREAK_TIME_LEFT_DEFAULT = convertTimeToMilliseconds(5);
+export const TIME_LEFT_DEFAULT = convertTimeToMilliseconds(25);
 export const POMODORO_DEFINE =
   "https://en.wikipedia.org/wiki/Pomodoro_Technique";
 export const SOUND_SRC =
   "https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg";
-export const TIME_LEFT_DEFAULT = 25 * 60 * 1000;
 
 export const timeFormat = (time: number) => (time < 10 ? `0${time}` : time);
 
